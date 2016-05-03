@@ -2,7 +2,7 @@ package com.rratchet.jwechat.tmgmsg;
 
 import org.springframework.web.client.RestOperations;
 
-import com.rratchet.jwechat.CommonResponseAssert;
+import com.rratchet.jwechat.APIResponseAssert;
 import com.rratchet.jwechat.accesstoken.AccessTokenManager;
 
 public class TemplateMessageAPI {
@@ -15,7 +15,7 @@ public class TemplateMessageAPI {
 	public TemplateMessageAPIResponse send(TemplateMessageAPIRequest request) {
 		String token = accessTokenManager.token();
 		TemplateMessageAPIResponse response = restOperations.postForObject(TEMPLATE_MESSAGE_API_URL, request, TemplateMessageAPIResponse.class, token);
-		CommonResponseAssert.assertOK(response);
+		APIResponseAssert.assertOK(response);
 		return response;
 	}
 	

@@ -2,8 +2,8 @@ package com.rratchet.jwechat.webaccesstoken;
 
 import org.springframework.web.client.RestOperations;
 
+import com.rratchet.jwechat.APIResponseAssert;
 import com.rratchet.jwechat.Authentication;
-import com.rratchet.jwechat.CommonResponseAssert;
 
 public class WebAccessTokenAPI {
 
@@ -15,7 +15,7 @@ public class WebAccessTokenAPI {
 	public WebAccessTokenAPIResponse exchangeToken(String webAuthCode) {
 		WebAccessTokenAPIResponse response = restOperations.getForObject(WEB_ACCESS_TOKEN_EXCHANGE_API_URL_TEMPLATE, WebAccessTokenAPIResponse.class,
 				authentication.getAppID(), authentication.getAppsecret(), webAuthCode);
-		CommonResponseAssert.assertOK(response);
+		APIResponseAssert.assertOK(response);
 		return response;
 	}
 
