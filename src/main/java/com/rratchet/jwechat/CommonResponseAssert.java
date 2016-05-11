@@ -1,5 +1,7 @@
 package com.rratchet.jwechat;
 
+import java.text.MessageFormat;
+
 public class CommonResponseAssert {
 
 	public static void assertOK(CommonResponse response) {
@@ -8,7 +10,8 @@ public class CommonResponseAssert {
 		}
 		Integer errorCode = response.getErrcode();
 		if(errorCode != null && errorCode != 0) {
-			throw new ErrorResponseException(errorCode, response.getErrmsg());
+			String errorMessage = MessageFormat.format("wechat response errcode:{0}, errmsg:{1}", errorCode, response.getErrmsg());
+			throw new ErrorResponseException(errorCode, errorMessage);
 		}
 	}
 }

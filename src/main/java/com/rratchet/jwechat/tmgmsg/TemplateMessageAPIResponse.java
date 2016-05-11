@@ -16,4 +16,10 @@ public class TemplateMessageAPIResponse extends CommonResponse {
 		this.msgid = msgid;
 	}
 
+	@Override
+	public String toString() {
+		return "TemplateMessageAPIResponse [msgid=" + msgid + ", getErrcode()=" + getErrcode() + ", getErrmsg()="
+				+ getErrmsg() + "]";
+	}
+
 }
