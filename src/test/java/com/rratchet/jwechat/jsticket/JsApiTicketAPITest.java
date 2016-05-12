@@ -1,6 +1,7 @@
 package com.rratchet.jwechat.jsticket;
 
 import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyString;
@@ -99,7 +100,7 @@ public class JsApiTicketAPITest {
 		}
 		assertTrue("Should throw ErrorResponseException.", hasErrorResponseException);
 		assertThat(errorCode, is(anyErrorCode));
-		assertThat(errorMessage, is(checkedErrorMessage));
+		assertThat(errorMessage, containsString(checkedErrorMessage));
 		verifyMock();
 	}
 }
