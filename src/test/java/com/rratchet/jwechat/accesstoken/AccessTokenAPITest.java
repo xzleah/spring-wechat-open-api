@@ -111,16 +111,19 @@ public class AccessTokenAPITest {
 		boolean hasErrorResponseException = false;
 		int errorCode = 0;
 		String errorMessage = null;
+		String exceptionMessage = null;
 		try {
 			accessTokenAPI.acquireToken();
 		} catch (ErrorResponseException e) {
 			hasErrorResponseException = true;
 			errorCode = e.getErrorCode();
 			errorMessage = e.getErrorMessage();
+			exceptionMessage = e.getMessage();
 		}
 		assertTrue("Should throw ErrorResponseException.", hasErrorResponseException);
 		assertThat(errorCode, is(anyErrorCode));
 		assertThat(errorMessage, containsString(checkedErrorMessage));
+		assertThat(exceptionMessage, containsString(checkedErrorMessage));
 		verifyMock();
 	}
 }

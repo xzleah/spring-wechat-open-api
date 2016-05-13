@@ -9,6 +9,7 @@ public class ErrorResponseException extends RuntimeException {
 	private String errorMessage;
 	
 	public ErrorResponseException(Integer errcode, String errmsg) {
+		super(errmsg);
 		this.errorCode = errcode;
 		this.errorMessage = errmsg;
 	}
