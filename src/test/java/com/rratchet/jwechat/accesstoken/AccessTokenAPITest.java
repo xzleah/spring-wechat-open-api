@@ -37,21 +37,14 @@ public class AccessTokenAPITest {
 
 	private AccessTokenAPI accessTokenAPI;
 	
-//	private String checkedToken = "checkedToken";
-	
 	private int checkedExpired = 1000;
 	
 	private RestOperations restOperations;
 	
 	private Authentication authentication;
 	
-//	private String checkedAppID = "appId";
-	
-//	private String checkedAppSecret = "appSecret";
-
 	@Before
 	public void setUp() throws Exception {
-//		restOperations = mock(RestOperations.class);
 		authentication = mock(Authentication.class);
 
 		accessTokenAPI = new AccessTokenAPI();
