@@ -6,9 +6,9 @@ public class CommonResponse implements Serializable {
 
 	private static final long serialVersionUID = -3697048993672314762L;
 
-	private Integer errcode;
+	protected Integer errcode;
 	
-	private String errmsg;
+	protected String errmsg;
 	
 	public boolean isError() {
 		return errcode != null && errcode != 0;

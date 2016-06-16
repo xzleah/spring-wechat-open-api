@@ -4,10 +4,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.client.RestOperations;
 
-import com.rratchet.jwechat.APIResponseAssert;
+import com.rratchet.jwechat.WechatAPI;
 import com.rratchet.jwechat.accesstoken.AccessTokenManager;
 
-public class TemplateMessageAPI {
+public class TemplateMessageAPI extends WechatAPI {
 
 	public static final String TEMPLATE_MESSAGE_API_URL = "https://api.weixin.qq.com/cgi-bin/message/template/send?access_token={ACCESS_TOKEN}";
 	
@@ -19,7 +19,7 @@ public class TemplateMessageAPI {
 		String token = accessTokenManager.token();
 		TemplateMessageAPIResponse response = restOperations.postForObject(TEMPLATE_MESSAGE_API_URL, request, TemplateMessageAPIResponse.class, token);
 		logger.debug("post request {} get response {}", request, response);
-		APIResponseAssert.assertOK(response);
+		apiResponseAssert.assertOK(response);
 		return response;
 	}
 	

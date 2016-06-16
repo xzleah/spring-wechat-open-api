@@ -1,22 +1,29 @@
 package com.rratchet.jwechat.jsticket;
 
+import static com.rratchet.jwechat.test.WechatMockRestResponseBodyCreators.json;
+import static com.rratchet.jwechat.test.WechatTestUtils.accessToken;
 import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestOperations;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.client.MockRestServiceServer;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
-import com.rratchet.jwechat.ErrorResponseException;
+import com.rratchet.jwechat.APIResponseAssert;
+import com.rratchet.jwechat.CommonResponse;
 import com.rratchet.jwechat.Token;
 import com.rratchet.jwechat.accesstoken.AccessTokenManager;
 
@@ -24,29 +31,37 @@ public class JsApiTicketAPITest {
 
 	private AccessTokenManager accessTokenManager;
 	
-	private RestOperations restOperations;
+	private RestTemplate restTemplate;
 
 	private JsApiTicketAPI api;
 	
-	private String checkedAccessToken = "checkedAccessToken";
 	private String checkedTicket = "checkedTicket";
+
+	private APIResponseAssert apiResponseAssert;
 
 	@Before
 	public void setUp() throws Exception {
 		api = new JsApiTicketAPI();
 		accessTokenManager = mock(AccessTokenManager.class);
 		api.setAccessTokenManager(accessTokenManager);
-		restOperations = mock(RestOperations.class);
-		api.setRestOperations(restOperations);
+		restTemplate = new RestTemplate();
+		api.setRestOperations(restTemplate);
+		apiResponseAssert = mock(APIResponseAssert.class);
+		api.setApiResponseAssert(apiResponseAssert);
 	}
 
 	@Test
 	public void test_require_OK() {
-		when(accessTokenManager.token()).thenReturn(checkedAccessToken);
+		when(accessTokenManager.token()).thenReturn(accessToken());
 		JsApiTicketAPIResponse response = new JsApiTicketAPIResponse();
 		response.setTicket(checkedTicket);
 		response.setExpires_in(100);
-		when(restOperations.getForObject(anyString(), eq(JsApiTicketAPIResponse.class), anyString())).thenReturn(response);
+		MockRestServiceServer mockServer = MockRestServiceServer.createServer(restTemplate);
+		mockServer.expect(requestTo(UriComponentsBuilder.fromHttpUrl(JsApiTicketAPI.JS_API_TICKET_API_TEMPLATE)
+				.buildAndExpand(accessToken()).toUri()))
+			.andExpect(method(HttpMethod.GET))
+			.andRespond(withSuccess(json(response), MediaType.APPLICATION_JSON));
+		doNothing().when(apiResponseAssert).assertOK(any(CommonResponse.class));
 		
 		Token token = api.acquireToken();
 		assertThat(checkedTicket, is(token.getToken()));
@@ -55,52 +70,7 @@ public class JsApiTicketAPITest {
 
 	private void verifyMock() {
 		verify(accessTokenManager).token();
-		verify(restOperations).getForObject(anyString(), eq(JsApiTicketAPIResponse.class), eq(checkedAccessToken));
-		verifyNoMoreInteractions(accessTokenManager, restOperations);
-	}
-
-	@SuppressWarnings("unchecked")
-	@Test
-	public void test_requireToken_failWithRestException() {
-		when(accessTokenManager.token()).thenReturn(checkedAccessToken);
-		
-		when(restOperations.getForObject(anyString(), eq(JsApiTicketAPIResponse.class),
-				anyString())).thenThrow(RestClientException.class);
-		
-		boolean hasRestClientException = false;
-		try {
-			api.acquireToken();
-		} catch (RestClientException e) {
-			hasRestClientException = true;
-		}
-		assertTrue("Should throw RestClientException.", hasRestClientException);
-		verifyMock();
-	}
-	
-	@Test
-	public void test_requireToken_failWithErrorResponseExceptionCauseByWeChatErrorResponse() {
-		when(accessTokenManager.token()).thenReturn(checkedAccessToken);
-		
-		JsApiTicketAPIResponse response = new JsApiTicketAPIResponse();
-		int anyErrorCode = -1;
-		response.setErrcode(anyErrorCode);
-		String checkedErrorMessage = "系统繁忙，此时请开发者稍候再试";
-		response.setErrmsg(checkedErrorMessage);
-		when(restOperations.getForObject(anyString(), eq(JsApiTicketAPIResponse.class), anyString())).thenReturn(response);
-		
-		boolean hasErrorResponseException = false;
-		int errorCode = 0;
-		String errorMessage = null;
-		try {
-			api.acquireToken();
-		} catch (ErrorResponseException e) {
-			hasErrorResponseException = true;
-			errorCode = e.getErrorCode();
-			errorMessage = e.getErrorMessage();
-		}
-		assertTrue("Should throw ErrorResponseException.", hasErrorResponseException);
-		assertThat(errorCode, is(anyErrorCode));
-		assertThat(errorMessage, containsString(checkedErrorMessage));
-		verifyMock();
+		verify(apiResponseAssert).assertOK(any(CommonResponse.class));
+		verifyNoMoreInteractions(accessTokenManager, apiResponseAssert);
 	}
 }
