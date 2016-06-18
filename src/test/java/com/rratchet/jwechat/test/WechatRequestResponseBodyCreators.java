@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rratchet.jwechat.CommonResponse;
 
-public abstract class WechatMockRestResponseBodyCreators {
+public abstract class WechatRequestResponseBodyCreators {
 
 	private static final ObjectMapper mapper;
 	
@@ -12,7 +12,7 @@ public abstract class WechatMockRestResponseBodyCreators {
 		mapper = new ObjectMapper();
 	}
 	
-	private WechatMockRestResponseBodyCreators() {
+	private WechatRequestResponseBodyCreators() {
 	}
 	
 	/**
@@ -23,6 +23,19 @@ public abstract class WechatMockRestResponseBodyCreators {
 	public static String json(CommonResponse response) {
 		try {
 			return mapper.writeValueAsString(response);
+		} catch (JsonProcessingException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	/**
+	 * 把request实例序列化成JSON格式
+	 * @param request 请求对象
+	 * @return 请求对象json字符串
+	 */
+	public static String json(Object request) {
+		try {
+			return mapper.writeValueAsString(request);
 		} catch (JsonProcessingException e) {
 			throw new RuntimeException(e);
 		}

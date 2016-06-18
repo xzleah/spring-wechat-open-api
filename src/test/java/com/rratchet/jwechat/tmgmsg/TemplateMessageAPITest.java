@@ -1,6 +1,6 @@
 package com.rratchet.jwechat.tmgmsg;
 
-import static com.rratchet.jwechat.test.WechatMockRestResponseBodyCreators.json;
+import static com.rratchet.jwechat.test.WechatRequestResponseBodyCreators.json;
 import static com.rratchet.jwechat.test.WechatTestUtils.accessToken;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;

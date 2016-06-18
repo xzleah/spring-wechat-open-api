@@ -1,6 +1,6 @@
 package com.rratchet.jwechat.accesstoken;
 
-import static com.rratchet.jwechat.test.WechatMockRestResponseBodyCreators.json;
+import static com.rratchet.jwechat.test.WechatRequestResponseBodyCreators.json;
 import static com.rratchet.jwechat.test.WechatTestUtils.accessToken;
 import static com.rratchet.jwechat.test.WechatTestUtils.appId;
 import static com.rratchet.jwechat.test.WechatTestUtils.appSecret;
