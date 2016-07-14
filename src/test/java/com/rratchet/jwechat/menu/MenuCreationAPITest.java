@@ -1,5 +1,6 @@
 package com.rratchet.jwechat.menu;
 
+import static com.rratchet.jwechat.menu.button.MenuCreationAPIRequestBuilder.clickButton;
 import static com.rratchet.jwechat.test.WechatRequestResponseBodyCreators.json;
 import static com.rratchet.jwechat.test.WechatTestUtils.accessToken;
 import static org.hamcrest.core.Is.is;
@@ -7,14 +8,14 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 import static org.springframework.web.util.UriComponentsBuilder.fromHttpUrl;
-
-import java.util.Arrays;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -26,8 +27,6 @@ import org.springframework.web.client.RestTemplate;
 import com.rratchet.jwechat.APIResponseAssert;
 import com.rratchet.jwechat.CommonResponse;
 import com.rratchet.jwechat.accesstoken.AccessTokenManager;
-import com.rratchet.jwechat.menu.button.Button;
-import com.rratchet.jwechat.menu.button.ButtonTypeEnum;
 
 public class MenuCreationAPITest {
 
@@ -60,13 +59,9 @@ public class MenuCreationAPITest {
 		MenuCreationAPIResponse response = new MenuCreationAPIResponse();
 		response.setErrcode(0);
 
-//		MenuCreationAPIRequest request = MenuCreationAPIRequestBuilder.clickButton("").key("").subButton(SubButtonBuilder.viewButton("").url()).build();
-		MenuCreationAPIRequest request = new MenuCreationAPIRequest();
-		Button button1 = new Button();
-		button1.setName("button1");
-		button1.setType(ButtonTypeEnum.click.name());
-		button1.setUrl("http://www.rratchet.com");
-		request.setButtonList(Arrays.asList(button1));
+		String checkedKey = "checkedKey";
+		String checkedButtonName = "button1";
+		MenuCreationAPIRequest request = clickButton(checkedButtonName).key(checkedKey).build();
 		
 		MockRestServiceServer mockServer = MockRestServiceServer.createServer(restTemplate);
 		mockServer.expect(requestTo(fromHttpUrl(MENU_CREATEION_URL_TEMPLATE).buildAndExpand(accessToken()).toUri()))
@@ -75,8 +70,11 @@ public class MenuCreationAPITest {
 				.andRespond(withSuccess(json(response), MediaType.APPLICATION_JSON));
 		
 		MenuCreationAPIResponse actualResponse = menuCreationAPI.create(request);
-		assertThat(response.getErrcode(), is(actualResponse.getErrcode()));
+		assertThat(actualResponse.getErrcode(), is(response.getErrcode()));
 		
 		mockServer.verify();
+		verify(accessTokenManager).token();
+		verify(apiResponseAssert).assertOK(any(CommonResponse.class));
+		verifyNoMoreInteractions(accessTokenManager, apiResponseAssert);
 	}
 }

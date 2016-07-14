@@ -13,7 +13,7 @@ public abstract class MenuCreationAPIRequestComponentBuilder {
 		this.request = request;
 	}
 
-	protected MenuCreationAPIRequest build() {
+	public MenuCreationAPIRequest build() {
 		return request;
 	}
 	
