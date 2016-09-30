@@ -1,1 +1,1 @@
-# jwechat
+# spring-wechat-open-api
