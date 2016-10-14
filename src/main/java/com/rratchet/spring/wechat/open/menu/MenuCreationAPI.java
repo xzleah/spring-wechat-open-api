@@ -1,7 +1,7 @@
 package com.rratchet.spring.wechat.open.menu;
 
 import com.rratchet.spring.wechat.open.WechatAPI;
-import com.rratchet.spring.wechat.open.accesstoken.AccessTokenManager;
+import com.rratchet.spring.wechat.open.token.accesstoken.AccessTokenManager;
 
 public class MenuCreationAPI extends WechatAPI {
 

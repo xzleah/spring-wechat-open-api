@@ -1,18 +1,19 @@
 package com.rratchet.spring.wechat.open.config;
 
+import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.web.client.RestOperations;
 
-import com.rratchet.spring.wechat.open.Authentication;
-import com.rratchet.spring.wechat.open.AuthenticationImpl;
-import com.rratchet.spring.wechat.open.RestOperationsFactory;
-import com.rratchet.spring.wechat.open.WechatRequestSignatureValidator;
-import com.rratchet.spring.wechat.open.accesstoken.AccessTokenAPI;
-import com.rratchet.spring.wechat.open.accesstoken.AccessTokenManager;
-import com.rratchet.spring.wechat.open.jsticket.JsApiSigner;
-import com.rratchet.spring.wechat.open.jsticket.JsApiTicketAPI;
-import com.rratchet.spring.wechat.open.jsticket.JsApiTicketManager;
-import com.rratchet.spring.wechat.open.tmpmsg.TemplateMessageAPI;
+import com.rratchet.spring.wechat.open.APIResponseAssert;
+import com.rratchet.spring.wechat.open.auth.Authentication;
+import com.rratchet.spring.wechat.open.auth.AuthenticationImpl;
+import com.rratchet.spring.wechat.open.rest.RestOperationsFactory;
+import com.rratchet.spring.wechat.open.sign.WechatRequestSignatureValidator;
+import com.rratchet.spring.wechat.open.token.accesstoken.AccessTokenAPI;
+import com.rratchet.spring.wechat.open.token.accesstoken.AccessTokenManager;
+import com.rratchet.spring.wechat.open.token.jsticket.JsApiSigner;
+import com.rratchet.spring.wechat.open.token.jsticket.JsApiTicketAPI;
+import com.rratchet.spring.wechat.open.token.jsticket.JsApiTicketManager;
 import com.rratchet.spring.wechat.open.webaccesstoken.WebAccessTokenAPI;
 
 public class WechatComponentsFactory {
@@ -41,14 +42,15 @@ public class WechatComponentsFactory {
 		return new AuthenticationImpl(appId, secret);
 	}
 	
-	public AccessTokenAPI accessTokenAPI(Authentication authentication, RestOperations restOperations) {
+	public AccessTokenAPI accessTokenAPI(Authentication authentication, RestOperations restOperations, APIResponseAssert apiResponseAssert) {
 		AccessTokenAPI accessTokenAPI = new AccessTokenAPI();
 		accessTokenAPI.setRestOperations(restOperations);
 		accessTokenAPI.setAuthentication(authentication);
+		accessTokenAPI.setApiResponseAssert(apiResponseAssert);
 		return accessTokenAPI;
 	}
 	
-	public AccessTokenManager accessTokenManager(AccessTokenAPI accessTokenAPI, ThreadPoolTaskScheduler taskScheduler) {
+	public AccessTokenManager accessTokenManager(AccessTokenAPI accessTokenAPI, TaskScheduler taskScheduler) {
 		AccessTokenManager accessTokenManager = new AccessTokenManager(accessTokenAPI);
 		accessTokenManager.setTaskScheduler(taskScheduler);
 		return accessTokenManager;
@@ -73,13 +75,6 @@ public class WechatComponentsFactory {
 		jsApiSigner.setAuthentication(authentication);
 		jsApiSigner.setJsApiTicketManager(jsApiTicketManager);
 		return jsApiSigner;
-	}
-	
-	public TemplateMessageAPI templateMessageAPI(AccessTokenManager accessTokenManager, RestOperations restOperations) {
-		TemplateMessageAPI templateMessageAPI = new TemplateMessageAPI();
-		templateMessageAPI.setAccessTokenManager(accessTokenManager);
-		templateMessageAPI.setRestOperations(restOperations);
-		return templateMessageAPI;
 	}
 	
 	public WebAccessTokenAPI webAccessTokenAPI(Authentication authentication, RestOperations restOperations) {

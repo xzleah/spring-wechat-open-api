@@ -1,9 +1,7 @@
-package com.rratchet.spring.wechat.open.webaccesstoken;
+package com.rratchet.spring.wechat.open.tmpmsg;
 
 import static com.rratchet.spring.wechat.open.test.WechatRequestResponseBodyCreators.json;
 import static com.rratchet.spring.wechat.open.test.WechatTestUtils.accessToken;
-import static com.rratchet.spring.wechat.open.test.WechatTestUtils.appId;
-import static com.rratchet.spring.wechat.open.test.WechatTestUtils.appSecret;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
@@ -26,50 +24,47 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import com.rratchet.spring.wechat.open.APIResponseAssert;
 import com.rratchet.spring.wechat.open.CommonResponse;
-import com.rratchet.spring.wechat.open.auth.Authentication;
-import com.rratchet.spring.wechat.open.webaccesstoken.WebAccessTokenAPI;
-import com.rratchet.spring.wechat.open.webaccesstoken.WebAccessTokenAPIResponse;
+import com.rratchet.spring.wechat.open.token.accesstoken.AccessTokenManager;
 
-public class WebAccessTokenAPITest {
+public class TemplateMessageSendAPITest {
 
+	private TemplateMessageSendAPI api;
+	private AccessTokenManager accessTokenManager;
 	private RestTemplate restTemplate;
-	private Authentication authentication;
-	private WebAccessTokenAPI webAccessTokenAPI;
-	private String checkedWebAuthCode = "checkedWebAuthCode";
 	private APIResponseAssert apiResponseAssert;
 
 	@Before
 	public void setUp() throws Exception {
-		webAccessTokenAPI = new WebAccessTokenAPI();
+		api = new TemplateMessageSendAPI();
+		accessTokenManager = mock(AccessTokenManager.class);
+		api.setAccessTokenManager(accessTokenManager);
 		restTemplate = new RestTemplate();
-		webAccessTokenAPI.setRestOperations(restTemplate);
-		authentication = mock(Authentication.class);
-		webAccessTokenAPI.setAuthentication(authentication);
+		api.setRestOperations(restTemplate);
 		apiResponseAssert = mock(APIResponseAssert.class);
-		webAccessTokenAPI.setApiResponseAssert(apiResponseAssert);
+		api.setApiResponseAssert(apiResponseAssert);
 	}
 
 	@Test
-	public void test_exchangeToken_OK() {
-		WebAccessTokenAPIResponse response = new WebAccessTokenAPIResponse();
-		response.setAccess_token(accessToken());
-		when(authentication.getAppID()).thenReturn(appId());
-		when(authentication.getAppsecret()).thenReturn(appSecret());
+	public void test() {
+		when(accessTokenManager.token()).thenReturn(accessToken());
+		TemplateMessageSendAPIResponse response = new TemplateMessageSendAPIResponse();
+		Integer checkedMsgid = 200228332;
+		response.setMsgid(checkedMsgid);
 		doNothing().when(apiResponseAssert).assertOK(any(CommonResponse.class));
 		MockRestServiceServer mockServer = MockRestServiceServer.createServer(restTemplate);
-		mockServer.expect(requestTo(UriComponentsBuilder.fromHttpUrl(
-					WebAccessTokenAPI.WEB_ACCESS_TOKEN_EXCHANGE_API_URL_TEMPLATE)
-					.buildAndExpand(appId(), appSecret(), checkedWebAuthCode).toUri()))
-			.andExpect(method(HttpMethod.GET))
+		mockServer.expect(requestTo(
+				UriComponentsBuilder.fromHttpUrl(TemplateMessageSendAPI.TEMPLATE_MESSAGE_API_URL)
+					.buildAndExpand(accessToken()).toUri()
+					))
+			.andExpect(method(HttpMethod.POST))
 			.andRespond(withSuccess(json(response), MediaType.APPLICATION_JSON));
 		
-		WebAccessTokenAPIResponse webAccessTokenAPIResponse = webAccessTokenAPI.exchangeToken(checkedWebAuthCode);
-		assertThat(response.getAccess_token(), is(webAccessTokenAPIResponse.getAccess_token()));
-		verify(authentication).getAppID();
-		verify(authentication).getAppsecret();
+		TemplateMessageSendAPIRequest actualRequest = new TemplateMessageSendAPIRequest();
+		TemplateMessageSendAPIResponse actualResponse = api.send(actualRequest);
+		assertThat(actualResponse.getMsgid(), is(response.getMsgid()));
+		verify(accessTokenManager).token();
 		verify(apiResponseAssert).assertOK(any(CommonResponse.class));
-		verifyNoMoreInteractions(authentication, apiResponseAssert);
-		mockServer.verify();
+		verifyNoMoreInteractions(accessTokenManager, apiResponseAssert);
 	}
-	
+
 }

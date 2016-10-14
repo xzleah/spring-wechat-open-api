@@ -26,10 +26,10 @@ import org.springframework.web.client.RestTemplate;
 
 import com.rratchet.spring.wechat.open.APIResponseAssert;
 import com.rratchet.spring.wechat.open.CommonResponse;
-import com.rratchet.spring.wechat.open.accesstoken.AccessTokenManager;
 import com.rratchet.spring.wechat.open.menu.MenuCreationAPI;
 import com.rratchet.spring.wechat.open.menu.MenuCreationAPIRequest;
 import com.rratchet.spring.wechat.open.menu.MenuCreationAPIResponse;
+import com.rratchet.spring.wechat.open.token.accesstoken.AccessTokenManager;
 
 public class MenuCreationAPITest {
 

@@ -2,7 +2,7 @@ package com.rratchet.spring.wechat.open;
 
 import java.text.MessageFormat;
 
-import com.rratchet.spring.wechat.open.accesstoken.AccessTokenExpiredException;
+import com.rratchet.spring.wechat.open.token.accesstoken.AccessTokenExpiredException;
 
 public class APIResponseAssert {
 

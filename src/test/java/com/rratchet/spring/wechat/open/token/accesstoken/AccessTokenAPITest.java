@@ -1,4 +1,4 @@
-package com.rratchet.spring.wechat.open.webaccesstoken;
+package com.rratchet.spring.wechat.open.token.accesstoken;
 
 import static com.rratchet.spring.wechat.open.test.WechatRequestResponseBodyCreators.json;
 import static com.rratchet.spring.wechat.open.test.WechatTestUtils.accessToken;
@@ -9,6 +9,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -22,54 +23,71 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.rratchet.spring.wechat.open.APIResponseAssert;
 import com.rratchet.spring.wechat.open.CommonResponse;
 import com.rratchet.spring.wechat.open.auth.Authentication;
-import com.rratchet.spring.wechat.open.webaccesstoken.WebAccessTokenAPI;
-import com.rratchet.spring.wechat.open.webaccesstoken.WebAccessTokenAPIResponse;
+import com.rratchet.spring.wechat.open.token.Token;
+import com.rratchet.spring.wechat.open.token.accesstoken.AccessTokenAPI;
+import com.rratchet.spring.wechat.open.token.accesstoken.AccessTokenAPIResponse;
 
-public class WebAccessTokenAPITest {
+public class AccessTokenAPITest {
 
+	private AccessTokenAPI accessTokenAPI;
+	
+	private int checkedExpired = 1000;
+	
 	private RestTemplate restTemplate;
+	
 	private Authentication authentication;
-	private WebAccessTokenAPI webAccessTokenAPI;
-	private String checkedWebAuthCode = "checkedWebAuthCode";
+	
 	private APIResponseAssert apiResponseAssert;
-
+	
 	@Before
 	public void setUp() throws Exception {
-		webAccessTokenAPI = new WebAccessTokenAPI();
-		restTemplate = new RestTemplate();
-		webAccessTokenAPI.setRestOperations(restTemplate);
 		authentication = mock(Authentication.class);
-		webAccessTokenAPI.setAuthentication(authentication);
 		apiResponseAssert = mock(APIResponseAssert.class);
-		webAccessTokenAPI.setApiResponseAssert(apiResponseAssert);
+		restTemplate = new RestTemplate();
+		
+		accessTokenAPI = new AccessTokenAPI();
+		accessTokenAPI.setRestOperations(restTemplate);
+		accessTokenAPI.setAuthentication(authentication);
+		accessTokenAPI.setApiResponseAssert(apiResponseAssert);
+		accessTokenAPI.setRestOperations(restTemplate);
 	}
 
 	@Test
-	public void test_exchangeToken_OK() {
-		WebAccessTokenAPIResponse response = new WebAccessTokenAPIResponse();
-		response.setAccess_token(accessToken());
+	public void test_acquireToken_OK() {
 		when(authentication.getAppID()).thenReturn(appId());
 		when(authentication.getAppsecret()).thenReturn(appSecret());
 		doNothing().when(apiResponseAssert).assertOK(any(CommonResponse.class));
-		MockRestServiceServer mockServer = MockRestServiceServer.createServer(restTemplate);
-		mockServer.expect(requestTo(UriComponentsBuilder.fromHttpUrl(
-					WebAccessTokenAPI.WEB_ACCESS_TOKEN_EXCHANGE_API_URL_TEMPLATE)
-					.buildAndExpand(appId(), appSecret(), checkedWebAuthCode).toUri()))
-			.andExpect(method(HttpMethod.GET))
-			.andRespond(withSuccess(json(response), MediaType.APPLICATION_JSON));
 		
-		WebAccessTokenAPIResponse webAccessTokenAPIResponse = webAccessTokenAPI.exchangeToken(checkedWebAuthCode);
-		assertThat(response.getAccess_token(), is(webAccessTokenAPIResponse.getAccess_token()));
-		verify(authentication).getAppID();
-		verify(authentication).getAppsecret();
-		verify(apiResponseAssert).assertOK(any(CommonResponse.class));
-		verifyNoMoreInteractions(authentication, apiResponseAssert);
+		MockRestServiceServer mockServer = MockRestServiceServer.createServer(restTemplate);
+		UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(AccessTokenAPI.ACCESS_TOKEN_API_TEMPLATE)
+				.buildAndExpand(appId(), appSecret());
+
+		AccessTokenAPIResponse response = new AccessTokenAPIResponse();
+		response.setAccess_token(accessToken());
+		response.setExpires_in(checkedExpired);
+		
+		mockServer.expect(requestTo(uriComponents.toUriString())).andExpect(method(HttpMethod.GET))
+				.andRespond(withSuccess(json(response), MediaType.APPLICATION_JSON));
+		
+		Token token = accessTokenAPI.acquireToken();
+		assertThat(token.getToken(), is(accessToken()));
+		assertThat(token.getExpire(), is(checkedExpired));
+		
 		mockServer.verify();
+		verifyMock();
 	}
-	
+
+	private void verifyMock() {
+		verify(authentication, times(1)).getAppID();
+		verify(authentication, times(1)).getAppsecret();
+		verify(apiResponseAssert, times(1)).assertOK(any(CommonResponse.class));
+		verifyNoMoreInteractions(authentication, apiResponseAssert);
+	}
+
 }
