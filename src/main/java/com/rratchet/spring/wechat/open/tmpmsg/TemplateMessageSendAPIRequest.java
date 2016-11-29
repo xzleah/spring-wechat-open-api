@@ -10,7 +10,7 @@ public class TemplateMessageSendAPIRequest {
 
 	private String url;
 
-	private Map<String, Model> modelMap;
+	private Map<String, Model> data;
 
 	public String getTouser() {
 		return touser;
@@ -36,18 +36,18 @@ public class TemplateMessageSendAPIRequest {
 		this.url = url;
 	}
 
-	public Map<String, Model> getModelMap() {
-		return modelMap;
+	public Map<String, Model> getData() {
+		return data;
 	}
 
-	public void setModelMap(Map<String, Model> modelMap) {
-		this.modelMap = modelMap;
+	public void setData(Map<String, Model> data) {
+		this.data = data;
 	}
 
 	@Override
 	public String toString() {
-		return "TemplateMessageRequest [touser=" + touser + ", template_id=" + template_id + ", url=" + url
-				+ ", modelMap=" + modelMap + "]";
+		return "TemplateMessageSendAPIRequest [touser=" + touser + ", template_id=" + template_id + ", url=" + url
+				+ ", data=" + data + "]";
 	}
 
 }
