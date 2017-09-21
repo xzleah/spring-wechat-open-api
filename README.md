@@ -64,7 +64,7 @@ spring Annotation配置：
 
 ## 常见问题
 
-###多个公众号怎么配置？
+### 多个公众号怎么配置？
 
 可以配置多个WechatClient，每个WechetClient由独立上下文。
 
