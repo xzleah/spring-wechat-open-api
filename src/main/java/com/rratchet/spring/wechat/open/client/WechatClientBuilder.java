@@ -14,10 +14,15 @@ import com.rratchet.spring.wechat.open.token.jsticket.JsApiTicketManager;
 
 public class WechatClientBuilder {
 
+	private static final int UNSETED_INTERVAL = -1;
+	
 	private ConfigProperties configProperties;
 	private boolean enableJsApiTicketManager = false;
 	private boolean refreshJsApiTicketWhenBuild = false;
 	private boolean refreshAccessTokenWhenBuild = true;
+	private int jsApiTicketInvokeInterval = UNSETED_INTERVAL;
+
+	private int accessTokenInvokeInterval;
 	
 	public static WechatClientBuilder config() {
 		return new WechatClientBuilder();
@@ -58,6 +63,22 @@ public class WechatClientBuilder {
 		return this;
 	}
 	
+	public WechatClientBuilder jsApiTicketInvokeInterval(int interval) {
+		if(interval < 0) {
+			throw new IllegalArgumentException("Wechat JS api ticket invoke Interval must greater then 0.");
+		}
+		this.jsApiTicketInvokeInterval = interval;
+		return this;
+	}
+	
+	public WechatClientBuilder accessTokenInvokeInterval(int interval) {
+		if(interval < 0) {
+			throw new IllegalArgumentException("Wechat JS api ticket invoke Interval must greater then 0.");
+		}
+		this.accessTokenInvokeInterval = interval;
+		return this;
+	}
+	
 	public WechatClient build() {
 		APIResponseAssert apiResponseAssert = new APIResponseAssert();
 		
@@ -68,6 +89,9 @@ public class WechatClientBuilder {
 		ThreadPoolTaskScheduler wechatTaskScheduler = wechatComponentsFactory.wechatTaskScheduler();
 		wechatTaskScheduler.afterPropertiesSet();
 		AccessTokenManager accessTokenManager = wechatComponentsFactory.accessTokenManager(accessTokenAPI, wechatTaskScheduler);
+		if(accessTokenInvokeInterval != UNSETED_INTERVAL) {
+			accessTokenManager.setInterval(accessTokenInvokeInterval);
+		}
 		if(refreshAccessTokenWhenBuild) {
 			accessTokenManager.refresh();
 		}
@@ -84,6 +108,9 @@ public class WechatClientBuilder {
 			jsApiTicketAPI.setAccessTokenManager(accessTokenManager);
 			JsApiTicketManager jsApiTicketManager = new JsApiTicketManager(jsApiTicketAPI);
 			jsApiTicketManager.setTaskScheduler(wechatTaskScheduler);
+			if(jsApiTicketInvokeInterval != UNSETED_INTERVAL) {
+				jsApiTicketManager.setInterval(jsApiTicketInvokeInterval);
+			}
 			wechatClient.setJsApiTicketManager(jsApiTicketManager);
 			if(refreshJsApiTicketWhenBuild) {
 				jsApiTicketManager.refresh();

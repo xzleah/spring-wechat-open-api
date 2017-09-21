@@ -107,3 +107,15 @@ spring Annotation配置：
 	}
 
 不用担心高并发下refresh()会重复请求微信Token导致API调用次数过高被封，因为refresh()已经做了并发限制，一秒内不能多次调用。也可以自定义间隔时间：
+
+	@Bean(name = "weclient1")
+	public WechatClient wechatClient1() {
+		return WechatClientBuilder.config()
+					.accessTokenInvokeInterval(10)  // 设置10秒内只能获取一次accessToken
+					.validationToken(token)
+					.appId(appId)
+					.appSecret(appSecret)
+					.enableJsApiTicketManager()
+					.jsApiTicketInvokeInterval(7) // 设置7秒内只能获取一次JS API ticket
+					.build();
+	}
