@@ -21,8 +21,7 @@ public class WechatClientBuilder {
 	private boolean refreshJsApiTicketWhenBuild = false;
 	private boolean refreshAccessTokenWhenBuild = true;
 	private int jsApiTicketInvokeInterval = UNSETED_INTERVAL;
-
-	private int accessTokenInvokeInterval;
+	private int accessTokenInvokeInterval = UNSETED_INTERVAL;
 	
 	public static WechatClientBuilder config() {
 		return new WechatClientBuilder();
