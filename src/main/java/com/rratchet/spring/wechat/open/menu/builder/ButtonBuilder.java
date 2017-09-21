@@ -1,20 +1,21 @@
-package com.rratchet.spring.wechat.open.menu.button;
+package com.rratchet.spring.wechat.open.menu.builder;
 
-import com.rratchet.spring.wechat.open.menu.MenuCreationAPIRequest;
+import com.rratchet.spring.wechat.open.menu.button.Button;
+import com.rratchet.spring.wechat.open.menu.button.ButtonTypeEnum;
 
 public abstract class ButtonBuilder extends MenuCreationAPIRequestComponentBuilder {
 
 	protected Button button;
 	
-	protected ButtonBuilder(MenuCreationAPIRequest request) {
-		super(request);
+	protected ButtonBuilder(MenuBuilder menuBuilder) {
+		super(menuBuilder);
 		button = new Button();
 		if(ButtonTypeEnum.group.equals(type())) {
 			button.setType(null);
 		} else {
 			button.setType(type().name());
 		}
-		getButtonList().add(button);
+		menuBuilder.add(button);
 	}
 
 	abstract protected ButtonTypeEnum type();

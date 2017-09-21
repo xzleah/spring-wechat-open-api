@@ -19,7 +19,6 @@ import org.springframework.web.client.RestTemplate;
 import com.rratchet.spring.wechat.open.APIResponseAssert;
 import com.rratchet.spring.wechat.open.auth.Authentication;
 import com.rratchet.spring.wechat.open.config.ConfigProperties;
-import com.rratchet.spring.wechat.open.config.WechatComponentsFactory;
 import com.rratchet.spring.wechat.open.menu.MenuAPI;
 import com.rratchet.spring.wechat.open.sign.WechatRequestSignatureValidator;
 import com.rratchet.spring.wechat.open.tmpmsg.TemplateMessageAPI;

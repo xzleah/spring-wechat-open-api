@@ -1,11 +1,11 @@
-package com.rratchet.spring.wechat.open.menu.button;
+package com.rratchet.spring.wechat.open.menu.builder;
 
-import com.rratchet.spring.wechat.open.menu.MenuCreationAPIRequest;
+import com.rratchet.spring.wechat.open.menu.button.ButtonTypeEnum;
 
 public class ClickButtonBuilder extends ButtonBuilder {
 	
-	protected ClickButtonBuilder(MenuCreationAPIRequest request) {
-		super(request);
+	protected ClickButtonBuilder(MenuBuilder menuBuilder) {
+		super(menuBuilder);
 	}
 
 	public ClickButtonBuilder key(String checkedKey) {

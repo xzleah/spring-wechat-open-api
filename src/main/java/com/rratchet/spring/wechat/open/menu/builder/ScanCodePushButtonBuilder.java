@@ -1,11 +1,11 @@
-package com.rratchet.spring.wechat.open.menu.button;
+package com.rratchet.spring.wechat.open.menu.builder;
 
-import com.rratchet.spring.wechat.open.menu.MenuCreationAPIRequest;
+import com.rratchet.spring.wechat.open.menu.button.ButtonTypeEnum;
 
 public class ScanCodePushButtonBuilder extends ButtonBuilder {
 
-	public ScanCodePushButtonBuilder(MenuCreationAPIRequest request) {
-		super(request);
+	public ScanCodePushButtonBuilder(MenuBuilder menuBuilder) {
+		super(menuBuilder);
 	}
 	
 	public ScanCodePushButtonBuilder key(String key) {

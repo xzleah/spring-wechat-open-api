@@ -1,6 +1,5 @@
 package com.rratchet.spring.wechat.open.menu;
 
-import static com.rratchet.spring.wechat.open.menu.button.MenuCreationAPIRequestBuilder.clickButton;
 import static com.rratchet.spring.wechat.open.test.WechatRequestResponseBodyCreators.json;
 import static com.rratchet.spring.wechat.open.test.WechatTestUtils.accessToken;
 import static org.hamcrest.core.Is.is;
@@ -29,6 +28,7 @@ import com.rratchet.spring.wechat.open.CommonResponse;
 import com.rratchet.spring.wechat.open.menu.MenuCreationAPI;
 import com.rratchet.spring.wechat.open.menu.MenuCreationAPIRequest;
 import com.rratchet.spring.wechat.open.menu.MenuCreationAPIResponse;
+import com.rratchet.spring.wechat.open.menu.builder.MenuBuilder;
 import com.rratchet.spring.wechat.open.token.accesstoken.AccessTokenManager;
 
 public class MenuCreationAPITest {
@@ -64,7 +64,8 @@ public class MenuCreationAPITest {
 
 		String checkedKey = "checkedKey";
 		String checkedButtonName = "button1";
-		MenuCreationAPIRequest request = clickButton(checkedButtonName).key(checkedKey).build();
+		
+		MenuCreationAPIRequest request = new MenuBuilder().clickButton(checkedButtonName).key(checkedKey).build();
 		
 		MockRestServiceServer mockServer = MockRestServiceServer.createServer(restTemplate);
 		mockServer.expect(requestTo(fromHttpUrl(MENU_CREATEION_URL_TEMPLATE).buildAndExpand(accessToken()).toUri()))
