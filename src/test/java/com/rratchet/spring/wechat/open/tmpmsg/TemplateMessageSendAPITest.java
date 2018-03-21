@@ -44,6 +44,7 @@ public class TemplateMessageSendAPITest {
 		api.setApiResponseAssert(apiResponseAssert);
 	}
 
+	@SuppressWarnings("deprecation")
 	@Test
 	public void test() {
 		when(accessTokenManager.token()).thenReturn(accessToken());
@@ -67,4 +68,26 @@ public class TemplateMessageSendAPITest {
 		verifyNoMoreInteractions(accessTokenManager, apiResponseAssert);
 	}
 
+	@Test
+	public void testWithLongResponseMessageId() {
+		when(accessTokenManager.token()).thenReturn(accessToken());
+		TemplateMessageSendAPIResponse response = new TemplateMessageSendAPIResponse();
+		Long checkedMsgid = 66711463745683456L;
+		response.setMsgid(checkedMsgid);
+		doNothing().when(apiResponseAssert).assertOK(any(CommonResponse.class));
+		MockRestServiceServer mockServer = MockRestServiceServer.createServer(restTemplate);
+		mockServer.expect(requestTo(
+				UriComponentsBuilder.fromHttpUrl(TemplateMessageSendAPI.TEMPLATE_MESSAGE_API_URL)
+					.buildAndExpand(accessToken()).toUri()
+					))
+			.andExpect(method(HttpMethod.POST))
+			.andRespond(withSuccess(json(response), MediaType.APPLICATION_JSON));
+		
+		TemplateMessageSendAPIRequest actualRequest = new TemplateMessageSendAPIRequest();
+		TemplateMessageSendAPIResponse actualResponse = api.send(actualRequest);
+		assertThat(actualResponse.getLongMsgid(), is(checkedMsgid));
+		verify(accessTokenManager).token();
+		verify(apiResponseAssert).assertOK(any(CommonResponse.class));
+		verifyNoMoreInteractions(accessTokenManager, apiResponseAssert);
+	}
 }
